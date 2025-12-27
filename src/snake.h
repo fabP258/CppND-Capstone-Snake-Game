@@ -17,7 +17,8 @@ class Snake {
   void Update();
 
   void GrowBody();
-  bool SnakeCell(int x, int y);
+  bool SnakeCell(int x, int y) const;
+  bool HeadCell(int x, int y) const;
 
   Direction direction = Direction::kUp;
 
@@ -27,6 +28,11 @@ class Snake {
   float head_x;
   float head_y;
   std::vector<SDL_Point> body;
+
+  int GridWidth() const { return grid_width; }
+  int GridHeight() const { return grid_height; }
+
+  void CheckForColission(const Snake& opponent);
 
  private:
   void UpdateHead();

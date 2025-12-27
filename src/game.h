@@ -6,6 +6,7 @@
 #include "controller.h"
 #include "renderer.h"
 #include "snake.h"
+#include "opponent.h"
 
 class Game {
  public:
@@ -17,6 +18,7 @@ class Game {
 
  private:
   Snake snake;
+  Opponent opponent;
   SDL_Point food;
 
   std::random_device dev;
@@ -24,10 +26,20 @@ class Game {
   std::uniform_int_distribution<int> random_w;
   std::uniform_int_distribution<int> random_h;
 
+  static constexpr int OPPONENT_ACTIVATION_SCORE = 4;
+  static constexpr float SPEED_INCREMENT = 0.01f;
+  static constexpr float MAX_SPEED = 0.5f;
+  static constexpr int MINIMAX_ACTIVATION_SCORE = 8;
+
   int score{0};
 
   void PlaceFood();
+  void GetRandomPosition(int& x, int& y);
+  void RespawnOpponent();
   void Update();
+  void UpdateSnake();
+  void UpdateOpponent();
+  void CheckForFoodAndCollision(Snake& ego, Snake& op, bool is_ego_opponent);
 };
 
 #endif

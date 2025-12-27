@@ -31,6 +31,7 @@ Renderer::Renderer(const std::size_t screen_width,
     std::cerr << "Renderer could not be created.\n";
     std::cerr << "SDL_Error: " << SDL_GetError() << "\n";
   }
+  SDL_SetRenderDrawBlendMode(sdl_renderer, SDL_BLENDMODE_BLEND);
 }
 
 Renderer::~Renderer() {
@@ -38,7 +39,7 @@ Renderer::~Renderer() {
   SDL_Quit();
 }
 
-void Renderer::Render(Snake const snake, SDL_Point const &food) {
+void Renderer::Render(const Snake& ego, const Snake& opponent, SDL_Point const &food) {
   SDL_Rect block;
   block.w = screen_width / grid_width;
   block.h = screen_height / grid_height;
@@ -53,8 +54,23 @@ void Renderer::Render(Snake const snake, SDL_Point const &food) {
   block.y = food.y * block.h;
   SDL_RenderFillRect(sdl_renderer, &block);
 
+  // Render snakes
+  RenderSnake(ego, block, false);
+  if (opponent.alive) {
+    RenderSnake(opponent, block, true);
+  }
+
+  // Update Screen
+  SDL_RenderPresent(sdl_renderer);
+}
+
+void Renderer::RenderSnake(const Snake& snake, SDL_Rect block, bool is_opponent) {
   // Render snake's body
-  SDL_SetRenderDrawColor(sdl_renderer, 0xFF, 0xFF, 0xFF, 0xFF);
+  if (is_opponent) {
+    SDL_SetRenderDrawColor(sdl_renderer, 0xFF, 0x00, 0x00, 0x50);
+  } else {
+    SDL_SetRenderDrawColor(sdl_renderer, 0x00, 0x7A, 0xCC, 0x50);
+  }
   for (SDL_Point const &point : snake.body) {
     block.x = point.x * block.w;
     block.y = point.y * block.h;
@@ -65,14 +81,15 @@ void Renderer::Render(Snake const snake, SDL_Point const &food) {
   block.x = static_cast<int>(snake.head_x) * block.w;
   block.y = static_cast<int>(snake.head_y) * block.h;
   if (snake.alive) {
-    SDL_SetRenderDrawColor(sdl_renderer, 0x00, 0x7A, 0xCC, 0xFF);
+    if (is_opponent) {
+      SDL_SetRenderDrawColor(sdl_renderer, 0xFF, 0x00, 0x00, 0xFF);
+    } else {
+      SDL_SetRenderDrawColor(sdl_renderer, 0x00, 0x7A, 0xCC, 0xFF);
+    }
   } else {
     SDL_SetRenderDrawColor(sdl_renderer, 0xFF, 0x00, 0x00, 0xFF);
   }
   SDL_RenderFillRect(sdl_renderer, &block);
-
-  // Update Screen
-  SDL_RenderPresent(sdl_renderer);
 }
 
 void Renderer::UpdateWindowTitle(int score, int fps) {

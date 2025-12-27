@@ -1,6 +1,5 @@
 #include "snake.h"
 #include <cmath>
-#include <iostream>
 
 void Snake::Update() {
   SDL_Point prev_cell{
@@ -17,6 +16,12 @@ void Snake::Update() {
   if (current_cell.x != prev_cell.x || current_cell.y != prev_cell.y) {
     UpdateBody(current_cell, prev_cell);
   }
+}
+
+void Snake::CheckForColission(const Snake& opponent) {
+  if (!opponent.alive) return;
+  bool in_collision = opponent.SnakeCell(static_cast<int>(head_x), static_cast<int>(head_y));
+  alive = alive && !in_collision;
 }
 
 void Snake::UpdateHead() {
@@ -66,7 +71,7 @@ void Snake::UpdateBody(SDL_Point &current_head_cell, SDL_Point &prev_head_cell) 
 void Snake::GrowBody() { growing = true; }
 
 // Inefficient method to check if cell is occupied by snake.
-bool Snake::SnakeCell(int x, int y) {
+bool Snake::SnakeCell(int x, int y) const {
   if (x == static_cast<int>(head_x) && y == static_cast<int>(head_y)) {
     return true;
   }
@@ -76,4 +81,8 @@ bool Snake::SnakeCell(int x, int y) {
     }
   }
   return false;
+}
+
+bool Snake::HeadCell(int x, int y) const {
+  return x == static_cast<int>(head_x) && y == static_cast<int>(head_y);
 }
